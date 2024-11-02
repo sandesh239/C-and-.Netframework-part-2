@@ -1,0 +1,74 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace StudentDatabaseApp
+{
+    // Define the Student class with properties
+    public class Student
+    {
+        // Primary key
+        [Key]
+        public int StudentId { get; set; }
+        
+        // Properties for Student FirstName and LastName
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+}
+
+using System.Data.Entity;
+
+namespace StudentDatabaseApp
+{
+    // Define the database context class
+    public class StudentContext : DbContext
+    {
+        // Constructor to specify the database connection string
+        public StudentContext() : base("name=StudentDatabase")
+        {
+        }
+
+        // DbSet for Students
+        public DbSet<Student> Students { get; set; }
+    }
+}
+<configuration>
+  <connectionStrings>
+    <add name="StudentDatabase" 
+         connectionString="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=StudentDatabase;Integrated Security=True;MultipleActiveResultSets=True" 
+         providerName="System.Data.SqlClient" />
+  </connectionStrings>
+</configuration>
+
+using System;
+
+namespace StudentDatabaseApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Create a new instance of the StudentContext
+            using (var context = new StudentContext())
+            {
+                // Create a new Student object
+                var student = new Student
+                {
+                    FirstName = "John",
+                    LastName = "Doe"
+                };
+
+                // Add the student to the context
+                context.Students.Add(student);
+
+                // Save changes to the database
+                context.SaveChanges();
+
+                // Confirm the student was added
+                Console.WriteLine($"Student {student.FirstName} {student.LastName} has been added to the database.");
+            }
+
+            // Wait for user input before closing the console window
+            Console.ReadLine();
+        }
+    }
+}
