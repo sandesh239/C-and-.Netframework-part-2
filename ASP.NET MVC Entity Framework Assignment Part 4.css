@@ -1,0 +1,154 @@
+using Microsoft.AspNetCore.Mvc;
+using YourNamespace.Models; // Adjust the namespace as needed
+using System.Collections.Generic;
+
+namespace YourNamespace.Controllers
+{
+    public class InsureeController : Controller
+    {
+        // Assuming you have a list to store all insurees and their quotes
+        private static List<Insuree> _insurees = new List<Insuree>();
+
+        // Create action
+        [HttpPost]
+        public IActionResult Create(Insuree insuree)
+        {
+            // Calculate the quote
+            decimal quote = CalculateQuote(insuree);
+            insuree.Quote = quote; // Store the calculated quote
+
+            // Add the insuree to the list
+            _insurees.Add(insuree);
+
+            return View("Quote", insuree); // Return the quote view with insuree details
+        }
+
+        // Method to calculate the quote based on the guidelines
+        private decimal CalculateQuote(Insuree insuree)
+        {
+            // Start with a base of $50
+            decimal total = 50;
+
+            // Adjust for age
+            if (insuree.Age <= 18)
+            {
+                total += 100;
+            }
+            else if (insuree.Age >= 19 && insuree.Age <= 25)
+            {
+                total += 50;
+            }
+            else if (insuree.Age >= 26)
+            {
+                total += 25;
+            }
+
+            // Adjust for car year
+            if (insuree.CarYear < 2000)
+            {
+                total += 25;
+            }
+            else if (insuree.CarYear > 2015)
+            {
+                total += 25;
+            }
+
+            // Adjust for car make
+            if (insuree.CarMake == "Porsche")
+            {
+                total += 25;
+
+                // Additional check for model
+                if (insuree.CarModel == "911 Carrera")
+                {
+                    total += 25; // Additional $25 for this specific model
+                }
+            }
+
+            // Add $10 for each speeding ticket
+            total += insuree.SpeedingTickets * 10;
+
+            // Adjust for DUI
+            if (insuree.HasDUI)
+            {
+                total *= 1.25m; // Add 25%
+            }
+
+            // Adjust for coverage type
+            if (insuree.CoverageType == "Full")
+            {
+                total *= 1.50m; // Add 50%
+            }
+
+            return total; // Return the calculated total
+        }
+
+        // Admin view to show all quotes
+        public IActionResult Admin()
+        {
+            return View(_insurees); // Return the list of insurees with quotes
+        }
+    }
+}
+
+              @model YourNamespace.Models.Insuree
+
+<form asp-action="Create">
+    <label>First Name:</label>
+    <input type="text" asp-for="FirstName" required />
+    
+    <label>Last Name:</label>
+    <input type="text" asp-for="LastName" required />
+    
+    <label>Age:</label>
+    <input type="number" asp-for="Age" required />
+    
+    <label>Car Year:</label>
+    <input type="number" asp-for="CarYear" required />
+    
+    <label>Car Make:</label>
+    <input type="text" asp-for="CarMake" required />
+    
+    <label>Car Model:</label>
+    <input type="text" asp-for="CarModel" required />
+    
+    <label>Speeding Tickets:</label>
+    <input type="number" asp-for="SpeedingTickets" min="0" required />
+    
+    <label>Has DUI:</label>
+    <input type="checkbox" asp-for="HasDUI" />
+    
+    <label>Coverage Type:</label>
+    <select asp-for="CoverageType">
+        <option value="Basic">Basic</option>
+        <option value="Full">Full</option>
+    </select>
+    
+    <button type="submit">Get Quote</button>
+</form>
+
+              @model IEnumerable<YourNamespace.Models.Insuree>
+
+<h1>Admin View - All Quotes Issued</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email Address</th>
+            <th>Quote</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var insuree in Model)
+        {
+            <tr>
+                <td>@insuree.FirstName</td>
+                <td>@insuree.LastName</td>
+                <td>@insuree.Email</td>
+                <td>@insuree.Quote.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
