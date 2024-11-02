@@ -1,1 +1,11 @@
+public static bool IsValidMove(string move)
+{
+    return move == "Hit" || move == "Stand";
+}
+public static void Main(string[] args)
+{
+    Console.WriteLine("Welcome to the Twenty One game!");
+    var game = new TwentyOneGame();
+    game.Play();
+}
 
